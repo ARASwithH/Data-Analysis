@@ -18,18 +18,18 @@ print(store_set)
 
 # # Preprocessing
 
-mean_val = train_set['DistanceToRivalStore'].mean()
-train_set['DistanceToRivalStore'].fillna(mean_val)
-df = train_set.fillna(0)
+# mean_val = train_set['DistanceToRivalStore'].mean()
+# train_set['DistanceToRivalStore'].fillna(mean_val)
+# df = train_set.fillna(0)
 
-df['Date'] = pd.to_datetime(df['Date'])
-df['Year'] = df['Date'].dt.year
-df['Month'] = df['Date'].dt.month
-df['Day'] = df['Date'].dt.day
-df['WeekOfYear'] = df['Date'].dt.day_of_week % 7 + 1
-df.drop('Date', axis=1)
+# df['Date'] = pd.to_datetime(df['Date'])
+# df['Year'] = df['Date'].dt.year
+# df['Month'] = df['Date'].dt.month
+# df['Day'] = df['Date'].dt.day
+# df['WeekOfYear'] = df['Date'].dt.day_of_week % 7 + 1
+# df.drop('Date', axis=1)
 
-df.drop('NumberOfCustomers', axis=1)
+# df.drop('NumberOfCustomers', axis=1)
 
 
 
@@ -38,9 +38,9 @@ df.drop('NumberOfCustomers', axis=1)
 
 # # Dividing Train and Test
 
-df = df.sort_values(by='Date')
-spl = int(len(df) * 0.7)
-train = df[:spl]
-test = df[spl:]
-scaler = StandardScaler()
-scaler.fit(train)
+# df = df.sort_values(by='Date')
+# spl = int(len(df) * 0.7)
+# train = df[:spl]
+# test = df[spl:]
+# scaler = StandardScaler()
+# scaler.fit(train)
