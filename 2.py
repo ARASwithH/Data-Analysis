@@ -7,6 +7,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from gensim.models import Word2Vec
 from sentence_transformers import SentenceTransformer
 
+# preprocessing
+
 
 # nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
@@ -27,8 +29,11 @@ df.drop_duplicates()
 df['review'] = df['review'].apply(remove_links)
 df['review'] = df['review'].apply(clean_text)
 
-print(df)
+# model 2
 
+model_2 = Word2Vec(sentences=df['review'], vector_size=7000, window=5, min_count=1, workers=4)
+model_2.save("word2vec.model")
+print(model_2.vector_size)
 
 
 
