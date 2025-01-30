@@ -6,6 +6,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from gensim.models import Word2Vec
 from sentence_transformers import SentenceTransformer
+import numpy as np
 
 # preprocessing
 
@@ -31,16 +32,18 @@ df['review'] = df['review'].apply(clean_text)
 
 # model 2
 
-model_2 = Word2Vec(sentences=df['review'], vector_size=7000, window=5, min_count=1, workers=4)
+model_2 = Word2Vec(sentences=df['review'], vector_size=100, window=5, min_count=1, workers=4)
 model_2.save("word2vec.model")
-print(model_2.vector_size)
+
+def get_sentence_vector(words, model):
+    vectors = [model_2.wv[word] for word in words if word in model_2.wv]
+    return np.mean(vectors, axis=0) if vectors else np.zeros(model_2.vector_size)
+
+df['vector_2'] = df['review'].apply(lambda words: get_sentence_vector(words, model_2))
 
 
-tf_idf=TfidfVectorizer()
-tfidf_vectorized=tf_idf.fit_transform(df['review'])
 
-print(tfidf_vectorized)
-print(df)
+
 
 
 
