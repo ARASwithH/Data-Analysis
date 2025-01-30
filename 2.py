@@ -27,6 +27,10 @@ df.drop_duplicates()
 df['review'] = df['review'].apply(remove_links)
 df['review'] = df['review'].apply(clean_text)
 
+tf_idf=TfidfVectorizer()
+tfidf_vectorized=tf_idf.fit_transform(df['review'])
+
+print(tfidf_vectorized)
 print(df)
 
 
