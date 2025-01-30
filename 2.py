@@ -30,6 +30,13 @@ df.drop_duplicates()
 df['review'] = df['review'].apply(remove_links)
 df['review'] = df['review'].apply(clean_text)
 
+
+# model 1
+
+tf_idf=TfidfVectorizer()
+tfidf_vectorized=tf_idf.fit_transform(df['review'])
+
+
 # model 2
 
 model_2 = Word2Vec(sentences=df['review'], vector_size=100, window=5, min_count=1, workers=4)
@@ -42,10 +49,11 @@ def get_sentence_vector(words, model):
 df['vector_2'] = df['review'].apply(lambda words: get_sentence_vector(words, model_2))
 
 
-
-
-
-
-
+# model 3 
+bert_model = SentenceTransformer("all-MiniLM-L6-v2") 
+x_bert=bert_model.encode(df["review"].tolist(), convert_to_numpy=True)
+bert_df=pd.DataFrame(x_bert)
+print(bert_df)
+print(x_bert)
 
 
