@@ -28,6 +28,11 @@ df['review'] = df['review'].str.lower()
 df.drop_duplicates()
 df['review'] = df['review'].apply(remove_links)
 df['review'] = df['review'].apply(clean_text)
+# model 1
+tf_idf=TfidfVectorizer()
+tfidf_vectorized=tf_idf.fit_transform(df['review'])
+
+print(tfidf_vectorized)
 
 # model 2
 
@@ -36,10 +41,7 @@ model_2.save("word2vec.model")
 print(model_2.vector_size)
 
 
-tf_idf=TfidfVectorizer()
-tfidf_vectorized=tf_idf.fit_transform(df['review'])
 
-print(tfidf_vectorized)
 print(df)
 
 
