@@ -3,6 +3,9 @@ import string
 import nltk
 from nltk.corpus import stopwords
 import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from gensim.models import Word2Vec
+from sentence_transformers import SentenceTransformer
 
 
 # nltk.download('stopwords')
@@ -12,7 +15,7 @@ def remove_links(text):
     return re.sub(r'http\S+|www\.\S+', '', text)
 
 def clean_text(text):
-    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = text.translate(str.maketrans(' ', ' ', string.punctuation))
     words = text.split()
     words = [word for word in words if word not in stop_words]
     return ' '.join(words)
