@@ -36,5 +36,13 @@ model_2.save("word2vec.model")
 print(model_2.vector_size)
 
 
+tf_idf=TfidfVectorizer()
+tfidf_vectorized=tf_idf.fit_transform(df['review'])
+
+print(tfidf_vectorized)
+print(df)
+
+
+
 
 
