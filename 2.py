@@ -8,8 +8,7 @@ from gensim.models import Word2Vec
 from sentence_transformers import SentenceTransformer
 import numpy as np
 
-# preprocessing
-
+#preprocessing
 
 # nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
@@ -26,34 +25,30 @@ def clean_text(text):
 df = pd.read_csv('train_sentiment.csv')
 df = df.drop('Unnamed: 0', axis=1)
 df['review'] = df['review'].str.lower()
-df.drop_duplicates()
+df = df.drop_duplicates()
 df['review'] = df['review'].apply(remove_links)
 df['review'] = df['review'].apply(clean_text)
+df['tokens'] = df['review'].apply(lambda x: x.split())
+
+#model_1
+tf_idf = TfidfVectorizer(min_df=2)
+tfidf_vectorized = tf_idf.fit_transform(df['review'])
+feature_names = tf_idf.get_feature_names_out()
+df['vector_1'] = list(tfidf_vectorized.toarray())
 
 
-# model 1
-
-tf_idf=TfidfVectorizer()
-tfidf_vectorized=tf_idf.fit_transform(df['review'])
-
-
-# model 2
-
-model_2 = Word2Vec(sentences=df['review'], vector_size=100, window=5, min_count=1, workers=4)
+#model_2
+model_2 = Word2Vec(sentences=df['tokens'], vector_size=100, window=5, min_count=1, workers=4)
 model_2.save("word2vec.model")
 
 def get_sentence_vector(words, model):
-    vectors = [model_2.wv[word] for word in words if word in model_2.wv]
-    return np.mean(vectors, axis=0) if vectors else np.zeros(model_2.vector_size)
+    vectors = [model.wv[word] for word in words if word in model.wv]
+    return np.mean(vectors, axis=0) if vectors else np.zeros(model.vector_size)
 
-df['vector_2'] = df['review'].apply(lambda words: get_sentence_vector(words, model_2))
+df['vector_2'] = df['tokens'].apply(lambda x: get_sentence_vector(x, model_2))
 
+#model_3
+bert_model = SentenceTransformer("all-MiniLM-L6-v2")
+df['vector_3'] = list(bert_model.encode(df['review'].tolist()))
 
-# model 3 
-bert_model = SentenceTransformer("all-MiniLM-L6-v2") 
-x_bert=bert_model.encode(df["review"].tolist(), convert_to_numpy=True)
-bert_df=pd.DataFrame(x_bert)
-print(bert_df)
-print(x_bert)
-
-
+print(df)
