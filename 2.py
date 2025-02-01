@@ -7,6 +7,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from gensim.models import Word2Vec
 from sentence_transformers import SentenceTransformer
 import numpy as np
+from sklearn.model_selection import train_test_split
+
 
 #preprocessing
 
@@ -28,27 +30,33 @@ df['review'] = df['review'].str.lower()
 df = df.drop_duplicates()
 df['review'] = df['review'].apply(remove_links)
 df['review'] = df['review'].apply(clean_text)
-df['tokens'] = df['review'].apply(lambda x: x.split())
 
-#model_1
+
+# spliting train and test
+
+X_train, X_test, y_train, y_test = train_test_split(df['review'], df['rating'], test_size=0.2, random_state=42)
+
+
+# vectorizing
+
+# TF-IDF
 tf_idf = TfidfVectorizer(min_df=2)
-tfidf_vectorized = tf_idf.fit_transform(df['review'])
-feature_names = tf_idf.get_feature_names_out()
-df['vector_1'] = list(tfidf_vectorized.toarray())
+X_train_tfidf = tf_idf.fit_transform(X_train)
+X_test_tfidf = tf_idf.transform(X_test)
 
+# Word2Vec
+sentences = [nltk.word_tokenize(text) for text in X_train]
+w2v = Word2Vec(sentences, vector_size=100, window=5, min_count=1, workers=4)
 
-#model_2
-model_2 = Word2Vec(sentences=df['tokens'], vector_size=100, window=5, min_count=1, workers=4)
-model_2.save("word2vec.model")
-
-def get_sentence_vector(words, model):
+def get_sentence_vector(text, model):
+    words = nltk.word_tokenize(text)  
     vectors = [model.wv[word] for word in words if word in model.wv]
     return np.mean(vectors, axis=0) if vectors else np.zeros(model.vector_size)
 
-df['vector_2'] = df['tokens'].apply(lambda x: get_sentence_vector(x, model_2))
+X_train_w2v = np.array([get_sentence_vector(text, w2v) for text in X_train])
+X_test_w2v = np.array([get_sentence_vector(text, w2v) for text in X_test])
 
-#model_3
-bert_model = SentenceTransformer("all-MiniLM-L6-v2")
-df['vector_3'] = list(bert_model.encode(df['review'].tolist()))
-
-print(df)
+# BERT
+bert = SentenceTransformer("all-MiniLM-L6-v2")
+X_train_bert = bert.encode(X_train)
+X_test_bert = bert.encode(X_test)
