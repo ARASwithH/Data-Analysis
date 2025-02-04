@@ -1,6 +1,8 @@
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection  import train_test_split
 
 
 # Import Dataset
@@ -34,7 +36,7 @@ df['Month'] = df['Date'].dt.month
 df['Day'] = df['Date'].dt.day
 df['WeekOfYear'] = (df['Date'].dt.day_of_year // 7) + 1
 df['HasRival'] = np.where((df['Year'] >= df['RivalEntryYear']) & (df['Month'] >= df['RivalOpeningMonth']), 1, 0)
-df['TotalSaleOfWeek'] = df.groupby(['Store_id' , 'WeekOfYear', 'Year'])['Sales'].transform('sum')
+# df['TotalSaleOfWeek'] = df.groupby(['Store_id' , 'WeekOfYear', 'Year'])['Sales'].transform('sum')
 df['ContinuousBogoinMonths'] = df.apply(check_bogo, axis=1)
 df['ContinuousBogoinYear'] = np.where((df['ContinuousBogoSinceYear'] <= df['Year']), 1, 0)
 df['DistanceToRivalStore'] = df['DistanceToRivalStore'].fillna(np.mean(df['DistanceToRivalStore']))
@@ -49,7 +51,24 @@ df = df.drop('DayOfWeek', axis=1)
 # df = df.drop('Year', axis=1)
 df = df.drop('Date', axis=1)
 
-print(df.columns)
+label_encoder = LabelEncoder()
+df['Stock variety'] = label_encoder.fit_transform(df['Stock variety'])
+label_encoder = LabelEncoder()
+df['RetailType'] = label_encoder.fit_transform(df['RetailType'])
+
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(df)
+df_scaled = pd.DataFrame(scaled_data, columns=df.columns)
+
+X = df_scaled[['Store_id', 'Is_Open', 'BOGO', 'Holiday', 'RetailType', 
+        'Stock variety', 'DistanceToRivalStore', 'ContinuousBogoSinceWeek', 
+        'Year', 'Month', 'Day', 'WeekOfYear', 'HasRival',
+        'ContinuousBogoinMonths', 'ContinuousBogoinYear']] 
+Y = df_scaled['Sales'] 
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+
+print(X_train)
 
 
 
