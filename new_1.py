@@ -37,7 +37,7 @@ df['HasRival'] = np.where((df['Year'] >= df['RivalEntryYear']) & (df['Month'] >=
 df['TotalSaleOfWeek'] = df.groupby(['Store_id' , 'WeekOfYear', 'Year'])['Sales'].transform('sum')
 df['ContinuousBogoinMonths'] = df.apply(check_bogo, axis=1)
 df['ContinuousBogoinYear'] = np.where((df['ContinuousBogoSinceYear'] <= df['Year']), 1, 0)
-df['DistanceToRivalStore'] = df['DistanceToRivalStore'].fillna(np.mean(df['DistanceToRivalStore']))
+df['DistanceToRivalStore'] = df['DistanceToRivalStore'].fillna(np.median(df['DistanceToRivalStore']))
 df = df.fillna(0)
 df = df.drop('ContinuousBogoSinceYear', axis=1)
 df = df.drop('ContinuousBogoMonths', axis=1)
@@ -51,12 +51,6 @@ df = df.drop('Date', axis=1)
 
 print(df.columns)
 
-
-<<<<<<< HEAD
-
 merged_df = merged_df.drop('NumberOfCustomers', axis=1)
 merged_df = merged_df.drop('Date', axis=1)
 print(merged_df)
-=======
->>>>>>> 3689d58e4e578b2c6f50cc02256da1c0256b1975
-
