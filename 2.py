@@ -4,6 +4,7 @@ import string
 import nltk
 from sklearn.metrics import f1_score
 from nltk.corpus import stopwords
+from sklearn.neighbors import KNeighborsClassifier
 import re
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -13,6 +14,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.model_selection  import GridSearchCV , train_test_split
 from langdetect import detect 
 # preprocessing
+
 
 
 # nltk.download('stopwords')
@@ -48,16 +50,18 @@ df = df.drop('Unnamed: 0', axis=1)
 df['review'] = df['review'].str.lower()
 df = df.drop_duplicates()
 df['review'] = df['review'].apply(remove_links)
-df['review'] = df['review'].apply(clean_text)
+
 df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
 df['review'] = df['review'].apply(is_english)
 df = df.dropna()
 df['rating'] = df['rating'].apply(lambda x: 1 if x>3 else 0)
 
+X_train, X_test, y_train, y_test = train_test_split(df['review'], df["rating"], test_size=0.2, random_state=42)
 
 # tf_idf vectorizer:
 vectorizer=TfidfVectorizer(max_features=5000)
-x_tfidf=vectorizer.fit_transform(df['review'])
+x_train_tfidf=vectorizer.fit_transform(X_train)
+x_test_tfidf=vectorizer.transform(X_test)
 
 # word2vec vectorizer:
 tokenized_reviews = [review.split() for review in df['review']]
@@ -71,22 +75,26 @@ def word_2_vec(review):
     else:
         return np.zeros(word2vec_model.vector_size) # if there was no words in the model, returns zero vecror
 
-x_word2vec = df['review'].apply(word_2_vec) #adding the word2vec vectors to dataset
-word2vec_df=pd.DataFrame(x_word2vec)
+X_train_w2v = np.array([word_2_vec(text) for text in X_train])
+X_test_w2v = np.array([word_2_vec(text) for text in X_test])
+
 
 # bert vectorizer
 
 bert_model = SentenceTransformer("all-MiniLM-L6-v2") 
-x_bert=bert_model.encode(df["review"].tolist(), convert_to_numpy=True)
-bert_df=pd.DataFrame(x_bert)
+X_train_bert = bert_model.encode(X_train.tolist(), convert_to_numpy=True)
+X_test_bert = bert_model.encode(X_test.tolist(), convert_to_numpy=True)
+
+
 
 # model: regression:
-X_train, X_test, y_train, y_test = train_test_split(x_tfidf, df["rating"], test_size=0.2, random_state=42)
 
-param_grid = {'n_estimators': [50, 100, 200]}
-grid = GridSearchCV(RandomForestClassifier(), param_grid, scoring='f1', cv=5)
-grid.fit(X_train, y_train)
+
+param_grid = {'n_neighbors': [3, 5, 7]}
+grid = GridSearchCV(KNeighborsClassifier(), param_grid, scoring='f1', cv=5)
+grid.fit(x_train_tfidf, y_train)
 best_model = grid.best_estimator_
-y_pred = best_model.predict(X_test)
+y_pred = best_model.predict(x_test_tfidf)
 f1=f1_score(y_test , y_pred)
 print(f1)
+
