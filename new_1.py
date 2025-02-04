@@ -4,10 +4,13 @@ import numpy as np
 
 
 # Import Dataset
+
 train = pd.read_csv('train.csv')
 store = pd.read_csv('store.csv')
 
+
 # Preprocessing
+
 month_map = {
     'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4,
     'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8,
@@ -23,24 +26,30 @@ def check_bogo(row):
             return 1
     return 0
 
-merged_df = pd.merge(train, store, on='Store_id' ,how='left')
+df = pd.merge(train, store, on='Store_id' ,how='left')
 
-merged_df['Date'] = pd.to_datetime(merged_df['Date'])
-merged_df['Year'] = merged_df['Date'].dt.year
-merged_df['Month'] = merged_df['Date'].dt.month
-merged_df['Day'] = merged_df['Date'].dt.day
-merged_df['WeekOfYear'] = (merged_df['Date'].dt.day_of_year // 7) + 1
-merged_df['HasRival'] = np.where((merged_df['Year'] >= merged_df['RivalEntryYear']) & (merged_df['Month'] >= merged_df['RivalOpeningMonth']), 1, 0)
-merged_df['TotalSaleOfWeek'] = merged_df.groupby(['Store_id' , 'WeekOfYear', 'Year'])['Sales'].transform('sum')
-merged_df['ContinuousBogoinMonths'] = merged_df.apply(check_bogo, axis=1)
-# merged_df['TotalSaleOfMonth'] = merged_df.groupby(['Store_id' , 'Month', 'Year'])['Sales'].transform('sum')
-merged_df = merged_df.drop('ContinuousBogoMonths', axis=1)
-merged_df = merged_df.drop('RivalEntryYear', axis=1)
-merged_df = merged_df.drop('RivalOpeningMonth', axis=1)
-merged_df = merged_df.drop('NumberOfCustomers', axis=1)
-merged_df = merged_df.drop('Date', axis=1)
+df['Date'] = pd.to_datetime(df['Date'])
+df['Year'] = df['Date'].dt.year
+df['Month'] = df['Date'].dt.month
+df['Day'] = df['Date'].dt.day
+df['WeekOfYear'] = (df['Date'].dt.day_of_year // 7) + 1
+df['HasRival'] = np.where((df['Year'] >= df['RivalEntryYear']) & (df['Month'] >= df['RivalOpeningMonth']), 1, 0)
+df['TotalSaleOfWeek'] = df.groupby(['Store_id' , 'WeekOfYear', 'Year'])['Sales'].transform('sum')
+df['ContinuousBogoinMonths'] = df.apply(check_bogo, axis=1)
+df['ContinuousBogoinYear'] = np.where((df['ContinuousBogoSinceYear'] <= df['Year']), 1, 0)
+df['DistanceToRivalStore'] = df['DistanceToRivalStore'].fillna(np.mean(df['DistanceToRivalStore']))
+df = df.fillna(0)
+df = df.drop('ContinuousBogoSinceYear', axis=1)
+df = df.drop('ContinuousBogoMonths', axis=1)
+df = df.drop('RivalEntryYear', axis=1)
+df = df.drop('RivalOpeningMonth', axis=1)
+df = df.drop('NumberOfCustomers', axis=1)
+df = df.drop('ContinuousBogo', axis=1)
+df = df.drop('DayOfWeek', axis=1)
+# df = df.drop('Year', axis=1)
+df = df.drop('Date', axis=1)
+
+print(df.columns)
 
 
-
-print(merged_df)
 
