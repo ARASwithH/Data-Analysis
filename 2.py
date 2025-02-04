@@ -13,17 +13,10 @@ from gensim.models import Word2Vec
 from sentence_transformers import SentenceTransformer
 from sklearn.model_selection  import GridSearchCV , train_test_split
 from langdetect import detect 
-<<<<<<< HEAD
-# preprocessing
-=======
->>>>>>> 44e560bfe44d7e5bb660c8cc0755d917a8b2e3f2
+
 
 # Preproseccing
 
-<<<<<<< HEAD
-=======
-print('Preproseccing...')
->>>>>>> 44e560bfe44d7e5bb660c8cc0755d917a8b2e3f2
 
 print('Downloading NLTK Packages')
 
@@ -56,27 +49,20 @@ def is_english(sentence):
     except:  
         return None  
 
-<<<<<<< HEAD
-=======
 # Data Cleaning
 print('Data Cleaning')
 
->>>>>>> 44e560bfe44d7e5bb660c8cc0755d917a8b2e3f2
 df = pd.read_csv('train_sentiment.csv')
 df = df.drop('Unnamed: 0', axis=1)
 df['review'] = df['review'].str.lower()
 df = df.drop_duplicates()
 df['review'] = df['review'].apply(remove_links)
-<<<<<<< HEAD
 
-=======
->>>>>>> 44e560bfe44d7e5bb660c8cc0755d917a8b2e3f2
 df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
 df['review'] = df['review'].apply(is_english)
 df = df.dropna()
 df['rating'] = df['rating'].apply(lambda x: 1 if x>3 else 0)
 
-<<<<<<< HEAD
 X_train, X_test, y_train, y_test = train_test_split(df['review'], df["rating"], test_size=0.2, random_state=42)
 
 # tf_idf vectorizer:
@@ -119,7 +105,6 @@ y_pred = best_model.predict(x_test_tfidf)
 f1=f1_score(y_test , y_pred)
 print(f1)
 
-=======
 X_train, X_test, y_train, y_test = train_test_split(df['review'], df["rating"], test_size=0.1, random_state=42)
 
 X_train_list ,X_test_list = [], []
@@ -231,4 +216,3 @@ for i in range(3):
     print()
 
 print('DONE\n')
->>>>>>> 44e560bfe44d7e5bb660c8cc0755d917a8b2e3f2
