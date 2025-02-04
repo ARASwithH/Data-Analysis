@@ -29,8 +29,6 @@ merged_df['HasRival'] = np.where(
 
 merged_df['TotalSaleOfWeek'] = merged_df.groupby(['Store_id' , 'WeekOfYear', 'Year'])['Sales'].transform('sum')
 
-# merged_df['TotalSaleOfMonth'] = merged_df.groupby(['Store_id' , 'Month', 'Year'])['Sales'].transform('sum')
-# merged_df['ContinuousBogoMonths'] = merged_df['ContinuousBogoMonths'].apply(lambda x: [month_map[month.strip()] for month in x.split(',')])
 
 merged_df = merged_df.drop('NumberOfCustomers', axis=1)
 merged_df = merged_df.drop('Date', axis=1)
